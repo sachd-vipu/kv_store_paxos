@@ -1,8 +1,13 @@
 package kvpaxos
 
 const (
-	OK       = "OK"
-	ErrNoKey = "ErrNoKey"
+	OK           = "OK"
+	Get          = "Get"
+	Put          = "Put"
+	Append       = "Append"
+	ErrNoKey     = "ErrNoKey"
+	ErrPending   = "ErrPending"
+	ErrForgotten = "ErrForgotten"
 )
 
 type Err string
@@ -16,6 +21,7 @@ type PutAppendArgs struct {
 	// You'll have to add definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
+	SeqNo int64
 }
 
 type PutAppendReply struct {
@@ -25,6 +31,7 @@ type PutAppendReply struct {
 type GetArgs struct {
 	Key string
 	// You'll have to add definitions here.
+	SeqNo int64
 }
 
 type GetReply struct {
