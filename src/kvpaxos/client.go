@@ -1,10 +1,11 @@
 package kvpaxos
 
-import "net/rpc"
-import "crypto/rand"
-import "math/big"
-
-import "fmt"
+import (
+	"crypto/rand"
+	"fmt"
+	"math/big"
+	"net/rpc"
+)
 
 type Clerk struct {
 	servers []string
@@ -25,7 +26,6 @@ func MakeClerk(servers []string) *Clerk {
 	return ck
 }
 
-//
 // call() sends an RPC to the rpcname handler on server srv
 // with arguments args, waits for the reply, and leaves the
 // reply in reply. the reply argument should be a pointer
@@ -41,7 +41,6 @@ func MakeClerk(servers []string) *Clerk {
 //
 // please use call() to send all RPCs, in client.go and server.go.
 // please don't change this function.
-//
 func call(srv string, rpcname string,
 	args interface{}, reply interface{}) bool {
 	c, errx := rpc.Dial("unix", srv)
@@ -59,21 +58,41 @@ func call(srv string, rpcname string,
 	return false
 }
 
-//
 // fetch the current value for a key.
 // returns "" if the key does not exist.
 // keeps trying forever in the face of all other errors.
-//
 func (ck *Clerk) Get(key string) string {
 	// You will have to modify this function.
-	return ""
+	getArgs := &GetArgs{Key: key, SeqNo: nrand()}
+	var reply GetReply
+
+	// forever keep on checking
+	for i := 0; ; i = (i + 1) % len(ck.servers) {
+		ok := call(ck.servers[i], "KVPaxos.Get", getArgs, &reply)
+		if ok {
+			if reply.Err == OK {
+				return reply.Value
+			} else if reply.Err == ErrNoKey { // return "" if the key does not exist
+				return ""
+			}
+		}
+	}
+
 }
 
-//
 // shared by Put and Append.
-//
 func (ck *Clerk) PutAppend(key string, value string, op string) {
 	// You will have to modify this function.
+	putAppendArgs := &PutAppendArgs{Key: key, Value: value, Op: op, SeqNo: nrand()}
+	var reply PutAppendReply
+	for i := 0; ; i = (i + 1) % len(ck.servers) {
+		// simply call the all servers until and return until one of them replies
+		ok := call(ck.servers[i], "KVPaxos.PutAppend", putAppendArgs, &reply)
+		if ok && reply.Err == OK {
+			return
+		}
+
+	}
 }
 
 func (ck *Clerk) Put(key string, value string) {
