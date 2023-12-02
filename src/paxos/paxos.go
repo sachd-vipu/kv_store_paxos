@@ -176,7 +176,7 @@ func (px *Paxos) Start(seq int, v interface{}) {
 
 func (px *Paxos) beginConsensusWorkflow(seqNo int, v interface{}) {
 	px.concurrencyMutex.Lock()
-
+	defer px.concurrencyMutex.Unlock()
 	px.mu.Lock()
 	curr := px.getNodeInfo(seqNo)
 	px.mu.Unlock()
@@ -215,8 +215,6 @@ func (px *Paxos) beginConsensusWorkflow(seqNo int, v interface{}) {
 		sendDecide(px, seqNo, minval)
 
 	}
-
-	defer px.concurrencyMutex.Unlock()
 }
 
 func sendPrepareRequests(px *Paxos, proposedResponse chan<- PrepareReply, proposalNum int64, seqNo int) {
@@ -377,6 +375,7 @@ func (px *Paxos) getNodeInfo(seqNo int) *Instance {
 func (px *Paxos) Prepare(args *PrepareArguments, response *PrepareReply) error {
 	// GetNodeInfo will return the instance from seq number
 	px.mu.Lock()
+	defer px.mu.Unlock()
 
 	// get instance from seq no and set highest prepare to proposal no
 	ins := px.getNodeInfo(args.SeqNo)
@@ -389,12 +388,12 @@ func (px *Paxos) Prepare(args *PrepareArguments, response *PrepareReply) error {
 	} else {
 		response.Ok = false
 	}
-	defer px.mu.Unlock()
 	return nil
 }
 
 func (px *Paxos) Accept(args *AcceptArguments, acceptReply *AcceptReply) error {
 	px.mu.Lock()
+	defer px.mu.Unlock()
 
 	// get instance from seq no and set highest prepare to proposal no
 	pxInstance := px.getNodeInfo(args.SeqNo)
@@ -410,12 +409,12 @@ func (px *Paxos) Accept(args *AcceptArguments, acceptReply *AcceptReply) error {
 		acceptReply.Ok = false
 		acceptReply.ProposalNo = args.ProposalNo
 	}
-	defer px.mu.Unlock()
 	return nil
 }
 
 func (px *Paxos) Decide(args *DecidedArguments, reply *DecidedReply) error {
 	px.mu.Lock()
+	defer px.mu.Unlock()
 
 	// get instance from seq no and set fate to decided
 	ins := px.getNodeInfo(args.SeqNo)
@@ -428,7 +427,6 @@ func (px *Paxos) Decide(args *DecidedArguments, reply *DecidedReply) error {
 	// call forget to free up memory
 	px.Forget()
 
-	defer px.mu.Unlock()
 	return nil
 }
 
