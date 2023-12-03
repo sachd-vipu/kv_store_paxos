@@ -67,6 +67,7 @@ func call(srv string, rpcname string,
 // keeps trying forever in the face of all other errors.
 func (ck *Clerk) Get(key string) string {
 	// You will have to modify this function.
+	ck.id = nrand()
 	getArgs := &GetArgs{Key: key, SeqNo: ck.id}
 	var reply GetReply
 	ck.counter++
@@ -88,6 +89,7 @@ func (ck *Clerk) Get(key string) string {
 func (ck *Clerk) PutAppend(key string, value string, op string) {
 	// You will have to modify this function.
 	ck.counter++
+	ck.id = nrand()
 	putAppendArgs := &PutAppendArgs{Key: key, Value: value, Op: op, SeqNo: ck.id}
 	var reply PutAppendReply
 	for i := 0; ; i = (i + 1) % len(ck.servers) {
