@@ -10,6 +10,8 @@ import (
 type Clerk struct {
 	servers []string
 	// You will have to modify this struct.
+	id      int64
+	counter int64
 }
 
 func nrand() int64 {
@@ -23,6 +25,8 @@ func MakeClerk(servers []string) *Clerk {
 	ck := new(Clerk)
 	ck.servers = servers
 	// You'll have to add code here.
+	ck.id = nrand()
+	ck.counter = 0
 	return ck
 }
 
@@ -63,9 +67,9 @@ func call(srv string, rpcname string,
 // keeps trying forever in the face of all other errors.
 func (ck *Clerk) Get(key string) string {
 	// You will have to modify this function.
-	getArgs := &GetArgs{Key: key, SeqNo: nrand()}
+	getArgs := &GetArgs{Key: key, SeqNo: ck.id}
 	var reply GetReply
-
+	ck.counter++
 	// forever keep on checking
 	for i := 0; ; i = (i + 1) % len(ck.servers) {
 		ok := call(ck.servers[i], "KVPaxos.Get", getArgs, &reply)
@@ -83,7 +87,8 @@ func (ck *Clerk) Get(key string) string {
 // shared by Put and Append.
 func (ck *Clerk) PutAppend(key string, value string, op string) {
 	// You will have to modify this function.
-	putAppendArgs := &PutAppendArgs{Key: key, Value: value, Op: op, SeqNo: nrand()}
+	ck.counter++
+	putAppendArgs := &PutAppendArgs{Key: key, Value: value, Op: op, SeqNo: ck.id}
 	var reply PutAppendReply
 	for i := 0; ; i = (i + 1) % len(ck.servers) {
 		// simply call the all servers until and return until one of them replies
