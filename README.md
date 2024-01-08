@@ -1,16 +1,8 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/zdZvYEbZ)
-Name 1: Vipul Sachdeva
-Name 2: Ayush Tanwar
-
-## Submission
-**Please replace paxos/paxos.go with your implementation in the first 
-project.** Similarly, You only need to push your code to the github repo. No 
-further action needed on Canvas. Please make sure you push your latest 
-changes before the cutoff time. After the deadline, you are not able to push 
-any commits.
+## Part 1
+https://github.com/sachd-vipu/single_decree_paxos
 
 ## Project Overview
-In this assignment, you'll implement a fault-tolerant key-value store on 
+In this Project, you'll implement a fault-tolerant key-value store on 
 top of Paxos. You need to fill in the necessary parts in `src/kvpaxos/client.go`, 
 `src/kvpaxos/server.go`, and `src/kvpaxos/common.go`. Similarly, the 
 communication between servers and clients is based on rpc, which is also 
